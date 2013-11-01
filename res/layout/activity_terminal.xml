@@ -1,0 +1,68 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="top|center"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".MainActivity" >
+
+    <!-- Mensagem a indicar a data e hora de início da viagem -->
+
+	<!-- Contém os textos e a camara -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <!-- contém apenas os textos -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/terminal_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@android:string/untitled"
+                android:textAppearance="@dimen/textSizeSmall" />
+
+            <TextView
+                android:id="@+id/terminal_bus_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bus"
+                android:textAppearance="@dimen/textSizeSmall" />
+
+            <TextView
+                android:id="@+id/status_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/instructions"
+                 />
+        </LinearLayout> <!-- Fim do layout vertical (textos) -->
+
+        <FrameLayout
+            android:id="@+id/cameraPreview"
+            android:layout_width="175dp"
+            android:layout_height="200dp"
+            android:paddingLeft="15dp" >
+        </FrameLayout>
+    </LinearLayout> <!-- Fim do layout horizontal (texto + camera) -->
+
+    <!-- Indica o número do autocarro -->
+
+    <!-- Mensagem de estado da validação -->
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:contentDescription="@string/validation_status_label"
+        android:src="@drawable/instructions" />
+
+</LinearLayout>
