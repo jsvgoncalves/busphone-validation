@@ -1,6 +1,9 @@
 package org.fe.up.joao.busphonevalidation;
 
 import org.fe.up.joao.busphonevalidation.helper.CameraHelper;
+import org.fe.up.joao.busphonevalidation.helper.ComHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +13,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
@@ -26,6 +30,8 @@ import net.sourceforge.zbar.Config;
 public class TerminalActivity extends Activity
 {
 	QRCodeReader qrReader;
+	private boolean isPreviewing = true;
+	protected final int STATUS_DELAY_MILIS = 3000;
 
 	static {
 		System.loadLibrary("iconv");
@@ -49,6 +55,64 @@ public class TerminalActivity extends Activity
 		qrReader.releaseCamera();
 	}
 
+	/**
+	 * Updates the image and message on the screen
+	 * after the user validates the ticket
+	 * @param statusCode
+	 */
+	protected void showValidationResult(int statusCode) {
+		
+		int imgID;
+		String statusMsg;
+		switch (statusCode) {
+		case ValidateCode.VALID_CODE:
+			imgID = R.drawable.ok;
+			statusMsg = getString(R.string.validation_ok);
+			break;
+		case ValidateCode.READ_ERROR:
+			imgID = R.drawable.error;
+			statusMsg = getString(R.string.validation_error);
+			break;
+		case ValidateCode.INVALID_CODE:
+			imgID = R.drawable.invalid;
+			statusMsg = getString(R.string.validation_invalid);
+			break;
+		case ValidateCode.SERVER_ERROR:
+			imgID = R.drawable.connection;
+			statusMsg = getString(R.string.validation_connection);
+			break;
+		default:
+			imgID = R.drawable.connection;
+			statusMsg = getString(R.string.validation_connection);
+			break;
+		}
+		
+		((ImageView) findViewById(R.id.validationStatus)).setImageResource(imgID);
+		((TextView) findViewById(R.id.status_message)).setText(statusMsg);
+		
+		
+		final Handler resetStatus = new Handler();
+		resetStatus.postDelayed(new Runnable() {
+			public void run() {
+				TerminalActivity.this.isPreviewing = true;
+				((ImageView) findViewById(R.id.validationStatus)).setImageResource(R.drawable.instructions);;
+				((TextView) findViewById(R.id.status_message)).setText(R.string.instructions);
+			}
+		}, STATUS_DELAY_MILIS);
+		
+	}
+	
+	public void setPreviewing(boolean previewing){
+		if (previewing) {
+			isPreviewing = true;
+		} else {
+			
+		}
+	}
+	
+	public boolean isPreviewing(){
+		return isPreviewing;
+	}
 
 
 	/**
@@ -60,13 +124,10 @@ public class TerminalActivity extends Activity
 
 		protected Camera mCamera;
 		protected CameraHelper mPreview;
-		protected Handler autoFocusHandler;
+//		protected Handler autoFocusHandler;
 		protected AutoFocusCallback autoFocusCB;
 
 		ImageScanner scanner;
-
-		protected boolean barcodeScanned = false;
-		protected boolean previewing = true;
 
 		/**
 		 * Constructor
@@ -84,33 +145,33 @@ public class TerminalActivity extends Activity
 					int result = scanner.scanImage(barcode);
 
 					if (result != 0) {
-						previewing = false;
+						TerminalActivity.this.setPreviewing(false);
 						mCamera.setPreviewCallback(null);
 						mCamera.stopPreview();
-						
-						/*
+
+						/**
 						 * The scanned data is handled here!
 						 * syms = list of symbols read.
 						 */
 						SymbolSet syms = scanner.getResults();
 						for (Symbol sym : syms) {
 							Log.v("MyLog", "Read symbol:" + sym.getData());
-							(new ValidateCode()).validate(sym.getData());
-							barcodeScanned = true;
+							(new ValidateCode()).validate(sym.getData());							
+							
 							return;
 						}
 					}
 				}
 			};
 
-			// Mimic continuous auto-focusing
-			autoFocusCB = new AutoFocusCallback() {
-				public void onAutoFocus(boolean success, Camera camera) {
-					autoFocusHandler.postDelayed(doAutoFocus, 1000);
-				}
-			};
+//			// Mimic continuous auto-focusing
+//			autoFocusCB = new AutoFocusCallback() {
+//				public void onAutoFocus(boolean success, Camera camera) {
+//					autoFocusHandler.postDelayed(doAutoFocus, 1000);
+//				}
+//			};
 
-			autoFocusHandler = new Handler();
+//			autoFocusHandler = new Handler();
 			mCamera = getCameraInstance();
 
 			/* Instance barcode scanner */
@@ -125,22 +186,22 @@ public class TerminalActivity extends Activity
 		 */
 		private void releaseCamera() {
 			if (mCamera != null) {
-				previewing = false;
+				TerminalActivity.this.setPreviewing(false);
 				mCamera.setPreviewCallback(null);
 				mCamera.release();
 				mCamera = null;
 			}
 		}
 
-		/**
-		 * Does auto focus.
-		 */
-		private Runnable doAutoFocus = new Runnable() {
-			public void run() {
-				if (previewing)
-					mCamera.autoFocus(autoFocusCB);
-			}
-		};
+//		/**
+//		 * Does auto focus.
+//		 */
+//		private Runnable doAutoFocus = new Runnable() {
+//			public void run() {
+//				if (TerminalActivity.this.isPreviewing())
+//					mCamera.autoFocus(autoFocusCB);
+//			}
+//		};
 
 		/** A safe way to get an instance of the Camera object. */
 		public Camera getCameraInstance(){
@@ -150,7 +211,7 @@ public class TerminalActivity extends Activity
 			cameraCount = Camera.getNumberOfCameras();
 			for ( int camIdx = 0; camIdx < cameraCount; camIdx++ ) {
 				Camera.getCameraInfo( camIdx, cameraInfo );
-				if ( cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT  ) {
+				if ( cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK  ) {
 					try {
 						cam = Camera.open( camIdx );
 					} catch (RuntimeException e) {
@@ -164,12 +225,45 @@ public class TerminalActivity extends Activity
 	}
 
 
-	private class ValidateCode extends AsyncTask<String, String, String> {
+	private class ValidateCode extends AsyncTask<String, String, Integer> {
+
+		/**
+		 * The code was read and validated on the server.
+		 */
+		public static final int VALID_CODE = 0;
+		/**
+		 * The code couldn't be read or the data format is not valid.
+		 */
+		public static final int READ_ERROR = 1;
+		/**
+		 * The code was read but was rejected by the server.
+		 */
+		public static final int INVALID_CODE = 2;
+		/**
+		 * Unexpected server response or server error.
+		 */
+		public static final int SERVER_ERROR = 3;
 
 		@Override
-		protected String doInBackground(String... arg0) {
-			// TODO Auto-generated method stub
-			return null;
+		protected Integer doInBackground(String... params) {
+			String url = params[0];
+			try {
+				JSONObject response = new JSONObject(ComHelper.httpGet(url));
+				if (response.getString("status") == "failed") {
+					return Integer.valueOf(INVALID_CODE);
+				} else {
+					//FIXME: verify JSON. server not working atm! :S
+					return Integer.valueOf(VALID_CODE);
+				}
+			} catch (JSONException e) {
+				Log.v("MyTag", "Failed to Validate or unexpected JSON.");
+				return Integer.valueOf(SERVER_ERROR);
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(Integer result) {
+			TerminalActivity.this.showValidationResult(result);
 		}
 
 		/**
@@ -181,9 +275,21 @@ public class TerminalActivity extends Activity
 		 * @param data
 		 */
 		public void validate(String data) {
-			// TODO Auto-generated method stub
-			
+			String[] dataArray = data.split(";");
+			if (dataArray.length != 3) {
+				/**
+				 * Malformed QRCode
+				 */
+				TerminalActivity.this.showValidationResult(READ_ERROR);
+				return;
+			}
+			String userID = dataArray[0];
+			String token = dataArray[1];
+			String ticketID = dataArray[2];
+			String url = String.format(ComHelper.serverURL + "users/%s/use/%s/t/%s", userID, ticketID, token);
+			this.execute(url);
 		}
-		
+
 	}
+
 }

@@ -55,11 +55,10 @@
         </FrameLayout>
     </LinearLayout> <!-- Fim do layout horizontal (texto + camera) -->
 
-    <!-- Indica o número do autocarro -->
 
-    <!-- Mensagem de estado da validação -->
-
+    <!-- Imagem de estado da validação -->
     <ImageView
+        android:id="@+id/validationStatus"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:contentDescription="@string/validation_status_label"

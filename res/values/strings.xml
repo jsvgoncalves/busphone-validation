@@ -24,6 +24,11 @@
     
     <!-- Mensagem que surge quando o bilhete é válido. Parâmetros: ticket type, duração -->
 	<string name="valid_status">Título: %s</string>
+	
+	<string name="validation_ok">Bilhete Válido :)</string>
+	<string name="validation_error">Erro. Valide outra vez!</string>
+	<string name="validation_invalid">Bilhete Inválido. Escolha outra bilhete.</string>
+	<string name="validation_connection">Erro de Coneção. Avise o Motorista!</string>
 
 </resources>
 

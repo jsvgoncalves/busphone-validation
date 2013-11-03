@@ -19,6 +19,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.util.Log;
+
 /**
  * Contains facilities to connect to the REST server
  * @author joao
@@ -26,10 +28,7 @@ import org.apache.http.message.BasicNameValuePair;
  */
 public class ComHelper{
 	
-	public static final String JSON_EXTENSION = ".json";
 	public static String serverURL = "http://busphone-service.herokuapp.com/";
-	
-
 
 	private static String readStream(InputStream is) {
 		try {
@@ -79,12 +78,11 @@ public class ComHelper{
 
 	/**
 	 * Makes a GET call to the server.
-	 * @param params 0-> Call Method = GET; 1-> URL
-	 * @return
+	 * @return The serve response (expected is JSON)
 	 */
-	public static String httpGet(String... params) {
+	public static String httpGet(String urlStr) {
 		try {
-			URL url = new URL(params[1]);
+			URL url = new URL(urlStr);
 			
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 			InputStream in = new BufferedInputStream(urlConnection.getInputStream());
@@ -92,9 +90,11 @@ public class ComHelper{
 			urlConnection.disconnect();
 			return r;
 		} catch (MalformedURLException e){
+			Log.v("MyLog", "GET: Bad URL");
 			e.printStackTrace();
 			return "GET: Bad URL";
 		} catch (IOException e) {
+			Log.v("MyLog", "GET: Bad Con");
 			e.printStackTrace();
 			return "GET: Bad Con";
 		}
