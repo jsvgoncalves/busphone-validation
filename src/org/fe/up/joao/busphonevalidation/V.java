@@ -13,4 +13,6 @@ public class V {
 	 * Current bus driver's name
 	 */
 	public static String busDriver;
+
+	public static Object busID = 12;
 }

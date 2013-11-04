@@ -276,7 +276,7 @@ public class TerminalActivity extends Activity
 		 */
 		public void validate(String data) {
 			String[] dataArray = data.split(";");
-			if (dataArray.length != 3) {
+			if (dataArray.length != 2) {
 				/**
 				 * Malformed QRCode
 				 */
@@ -284,9 +284,9 @@ public class TerminalActivity extends Activity
 				return;
 			}
 			String userID = dataArray[0];
-			String token = dataArray[1];
-			String ticketID = dataArray[2];
-			String url = String.format(ComHelper.serverURL + "users/%s/use/%s/t/%s", userID, ticketID, token);
+			String ticketID = dataArray[1];
+			// get 'bus/validate/:bus_id/:ticket_id/:user_id'
+			String url = String.format(ComHelper.serverURL + "bus/validate/%s/use/%s/t/%s", V.busID, ticketID, userID);
 			this.execute(url);
 		}
 
