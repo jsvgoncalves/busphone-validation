@@ -72,7 +72,7 @@ public class ComHelper{
 			return "Client Protocol Exception";
 	    } catch (IOException e) {
 	    	e.printStackTrace();
-			return "POST: Bad Con";
+			return "POST: Failed to connect (" + params[1] + ")";
 	    }
 	}
 
@@ -96,7 +96,7 @@ public class ComHelper{
 		} catch (IOException e) {
 			Log.v("MyLog", "GET: Bad Con");
 			e.printStackTrace();
-			return "GET: Bad Con";
+			return "GET: Bad Con [" + urlStr + "]";
 		}
 	}
 	

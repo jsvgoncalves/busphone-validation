@@ -39,13 +39,14 @@ public class TerminalActivity extends Activity
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		qrReader = new QRCodeReader(this);
 		String busMessage = getString(R.string.bus) + " " + V.busNumber;
 
 		setContentView(R.layout.activity_terminal);
 
 		((TextView) findViewById(R.id.terminal_bus_label)).setText(busMessage);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		
+		qrReader = new QRCodeReader(this);
 		FrameLayout preview = (FrameLayout)findViewById(R.id.cameraPreview);
 		preview.addView(qrReader.mPreview);
 	}
@@ -97,6 +98,8 @@ public class TerminalActivity extends Activity
 				TerminalActivity.this.isPreviewing = true;
 				((ImageView) findViewById(R.id.validationStatus)).setImageResource(R.drawable.instructions);;
 				((TextView) findViewById(R.id.status_message)).setText(R.string.instructions);
+				qrReader.mCamera.startPreview();
+				qrReader.mCamera.setPreviewCallback(qrReader.getPreviewCallBack());
 			}
 		}, STATUS_DELAY_MILIS);
 		
@@ -134,7 +137,19 @@ public class TerminalActivity extends Activity
 		 * Instanciates camera stuff
 		 */
 		public QRCodeReader(Context context){
-			PreviewCallback previewCb = new PreviewCallback() {
+			PreviewCallback previewCb = getPreviewCallBack();
+			
+			mCamera = getCameraInstance();
+
+			/* Instance barcode scanner */
+			scanner = new ImageScanner();
+			scanner.setConfig(0, Config.X_DENSITY, 3);
+			scanner.setConfig(0, Config.Y_DENSITY, 3);
+			mPreview = new CameraHelper(context, mCamera, previewCb, autoFocusCB);
+		}
+
+		public PreviewCallback getPreviewCallBack() {
+			return new PreviewCallback() {
 				public void onPreviewFrame(byte[] data, Camera camera) {
 					Camera.Parameters parameters = camera.getParameters();
 					Size size = parameters.getPreviewSize();
@@ -163,22 +178,6 @@ public class TerminalActivity extends Activity
 					}
 				}
 			};
-
-//			// Mimic continuous auto-focusing
-//			autoFocusCB = new AutoFocusCallback() {
-//				public void onAutoFocus(boolean success, Camera camera) {
-//					autoFocusHandler.postDelayed(doAutoFocus, 1000);
-//				}
-//			};
-
-//			autoFocusHandler = new Handler();
-			mCamera = getCameraInstance();
-
-			/* Instance barcode scanner */
-			scanner = new ImageScanner();
-			scanner.setConfig(0, Config.X_DENSITY, 3);
-			scanner.setConfig(0, Config.Y_DENSITY, 3);
-			mPreview = new CameraHelper(context, mCamera, previewCb, autoFocusCB);
 		}
 
 		/**
@@ -249,7 +248,7 @@ public class TerminalActivity extends Activity
 			String url = params[0];
 			try {
 				JSONObject response = new JSONObject(ComHelper.httpGet(url));
-				if (response.getString("status") == "failed") {
+				if (response.has("error")) {
 					return Integer.valueOf(INVALID_CODE);
 				} else {
 					//FIXME: verify JSON. server not working atm! :S
@@ -283,10 +282,11 @@ public class TerminalActivity extends Activity
 				TerminalActivity.this.showValidationResult(READ_ERROR);
 				return;
 			}
-			String userID = dataArray[0];
-			String ticketID = dataArray[1];
+			String userID = dataArray[1];
+			String ticketID = dataArray[0];
 			// get 'bus/validate/:bus_id/:ticket_id/:user_id'
-			String url = String.format(ComHelper.serverURL + "bus/validate/%s/use/%s/t/%s", V.busID, ticketID, userID);
+			String url = String.format(ComHelper.serverURL + "bus/validate/%s/%s/%s", V.busID, ticketID, userID);
+			Log.v("MyLog", "Connecting to: " + url);
 			this.execute(url);
 		}
 
