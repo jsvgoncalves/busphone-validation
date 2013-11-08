@@ -42,10 +42,8 @@ public class TerminalActivity extends Activity
 		String busMessage = getString(R.string.bus) + " " + V.busNumber;
 
 		setContentView(R.layout.activity_terminal);
-
 		((TextView) findViewById(R.id.terminal_bus_label)).setText(busMessage);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		
 		qrReader = new QRCodeReader(this);
 		FrameLayout preview = (FrameLayout)findViewById(R.id.cameraPreview);
 		preview.addView(qrReader.mPreview);
@@ -210,7 +208,7 @@ public class TerminalActivity extends Activity
 			cameraCount = Camera.getNumberOfCameras();
 			for ( int camIdx = 0; camIdx < cameraCount; camIdx++ ) {
 				Camera.getCameraInfo( camIdx, cameraInfo );
-				if ( cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK  ) {
+				if ( cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT  ) {
 					try {
 						cam = Camera.open( camIdx );
 					} catch (RuntimeException e) {
@@ -282,8 +280,8 @@ public class TerminalActivity extends Activity
 				TerminalActivity.this.showValidationResult(READ_ERROR);
 				return;
 			}
-			String userID = dataArray[1];
-			String ticketID = dataArray[0];
+			String userID = dataArray[0];
+			String ticketID = dataArray[1];
 			// get 'bus/validate/:bus_id/:ticket_id/:user_id'
 			String url = String.format(ComHelper.serverURL + "bus/validate/%s/%s/%s", V.busID, ticketID, userID);
 			Log.v("MyLog", "Connecting to: " + url);
