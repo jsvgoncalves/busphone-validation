@@ -13,21 +13,41 @@
 
     <!-- Botão para escolha do autocarro -->
 
-    <Button
-        android:id="@+id/busNumberButton"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:onClick="showBusDialog"
-        android:padding="20dp"
-        android:text="@string/bus" />
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center" >
+
+        <EditText
+            android:id="@+id/busLineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Carreira"
+            android:inputType="none"
+            android:onClick="showBusDialog"
+            android:focusable="false" 
+            android:padding="15dp" />
+
+        <EditText
+            android:id="@+id/busIDButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="ID Autocarro"
+            android:inputType="number"
+            android:padding="15dp" />
+
+    </LinearLayout>
 
     <!-- Botão para dar início à viagem -->
+
     <Button
         android:id="@+id/startTripButton"
         android:layout_width="200dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
+        android:onClick="startTrip"
         android:padding="20dp"
-        android:text="@string/start"
-        android:onClick="startTrip" /> <!-- Nome da função chamada por este botão --> 
+        android:text="@string/start" />
+ <!-- Nome da função chamada por este botão -->
 
 </LinearLayout>

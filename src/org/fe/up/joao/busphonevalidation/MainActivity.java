@@ -11,7 +11,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
@@ -37,7 +37,7 @@ public class MainActivity extends Activity {
 	 */
 	public void startTrip(View v){
 		if (V.busNumber == -1){
-			((Button) findViewById(R.id.busNumberButton)).setBackgroundResource(R.drawable.button_selector);
+			((EditText) findViewById(R.id.busLineButton)).setBackgroundResource(R.drawable.button_selector);
 		} else {
 			Intent intent = new Intent(this, TerminalActivity.class);
 			startActivity(intent);
@@ -55,7 +55,7 @@ public class MainActivity extends Activity {
 			builder.setItems(V.buses, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int item) {
 					V.busNumber = Integer.valueOf(V.buses[item]);
-					((Button) getActivity().findViewById(R.id.busNumberButton)).setText(V.buses[item]);
+					((EditText) getActivity().findViewById(R.id.busLineButton)).setText(V.buses[item]);
 				}
 			});
 			return builder.create();
