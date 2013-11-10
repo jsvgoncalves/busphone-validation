@@ -36,9 +36,13 @@ public class MainActivity extends Activity {
 	 * Método chamado pelo botão de iniciar
 	 */
 	public void startTrip(View v){
+		String busID = ((EditText) findViewById(R.id.busIDButton)).getText().toString();
 		if (V.busNumber == -1){
 			((EditText) findViewById(R.id.busLineButton)).setBackgroundResource(R.drawable.button_selector);
-		} else {
+		} else if(busID.equals("")) {
+			
+		}else {
+			V.busID = busID;
 			Intent intent = new Intent(this, TerminalActivity.class);
 			startActivity(intent);
 		}

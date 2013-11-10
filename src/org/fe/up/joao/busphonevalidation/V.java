@@ -14,5 +14,5 @@ public class V {
 	 */
 	public static String busDriver;
 
-	public static Object busID = 12;
+	public static String busID = "-1";
 }
